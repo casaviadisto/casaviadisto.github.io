@@ -65,8 +65,17 @@ footer div{
     justify-content: space-evenly;
 }
 footer div h5{
-    margin: auto;
+    /*margin: auto;*/
     margin: 0 5px 5px 5px;
+}
+
+footer a {
+    text-decoration: none;
+    color:inherit;
+}
+
+footer a:hover {
+    text-shadow: cadetblue 1px 1px 3px;
 }
 
 @media (max-width: 768px) {
