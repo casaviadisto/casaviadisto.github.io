@@ -1,0 +1,40 @@
+article{
+    display: flex;
+    flex-direction: column;
+}
+
+.text{
+    text-align: justify;
+}
+
+.float-left{
+    float: left;
+}
+.float-right{
+    float: right;
+}
+
+section img{
+    width: 40%;
+    margin: 0 10px;
+}
+
+@media (max-width: 768px) {
+    .float-left{
+        float: none;
+    }
+    .float-right{
+        float: none;
+    }
+    section img{
+        width: 100%;
+        margin: 0;
+    }
+}
+
+
+@media (max-width: 480px) {
+    article{
+        align-items: center;
+    }
+}

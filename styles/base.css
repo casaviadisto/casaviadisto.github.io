@@ -7,11 +7,10 @@ body{
 }
 
 header {
+    background: gray;
     position: fixed;
     width: 100%;
     z-index: 100;
-    background: white;
-    /*height: 57px;*/
     height: auto;
 }
 
@@ -44,28 +43,21 @@ header hr{
 
 main{
     padding-top: 57px;
+    padding-bottom: 64px;
     margin: auto 5%;
 }
 
-article{
-    display: flex;
-    flex-direction: column;
+footer{
+    background: gray;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 100;
+    height: auto;
 }
 
-.text{
-    text-align: justify;
-}
-
-.float-left{
-    float: left;
-}
-.float-right{
-    float: right;
-}
-
-section img{
-    width: 40%;
-    margin: 0 10px;
+footer hr{
+    margin: 0;
 }
 
 footer div{
@@ -91,7 +83,7 @@ footer div h5{
 }
 
 @media (max-width: 480px) {
-   article{
-       align-items: center;
-   }
+    article{
+        align-items: center;
+    }
 }
