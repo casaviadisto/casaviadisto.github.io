@@ -3,6 +3,20 @@ article{
     flex-direction: column;
 }
 
+.completed{
+    display: flex;
+    flex-direction: column;
+}
+
+.planned{
+    display: flex;
+    flex-direction: column;
+}
+
+article h3{
+    margin-bottom: 0;
+}
+
 .text{
     text-align: justify;
 }
@@ -17,6 +31,49 @@ article{
 section img{
     width: 40%;
     margin: 0 10px;
+}
+
+
+.travel_form_options{
+    display: flex;
+    justify-content: space-between;
+}
+
+.travel_form_options div{
+    display: flex;
+    flex-direction: column;
+}
+
+/*.travel_form_options{*/
+/*    margin-top: 10px;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*}*/
+
+#description{
+    width: 100%;
+    height: 300px;
+    resize: none;
+    font-size: 15px;
+}
+
+.form_submit{
+    display: flex;
+    justify-content: center;
+}
+
+#travel_form button{
+    margin: 20px;
+    width: 200px;
+    height: 40px;
+    font-size: 20px;
+}
+
+#place_form button{
+    margin: 20px;
+    width: 200px;
+    height: 40px;
+    font-size: 20px;
 }
 
 @media (max-width: 768px) {
