@@ -23,46 +23,21 @@
 </header>
 <main>
     <article id="budget">
-        <h1>Бюджет</h1>
-        <section>
-            <h3>Витрати на подорожі</h3>
-            <p>Ось детальний розподіл витрат на мої подорожі:</p>
-            <ul>
-                <li><strong>Париж, Франція:</strong>
-                    <ul>
-                        <li>Переліт: 300 €</li>
-                        <li>Житло: 500 € (5 ночей)</li>
-                        <li>Харчування: 200 €</li>
-                        <li>Транспорт: 50 €</li>
-                        <li>Розваги: 150 €</li>
-                        <li><strong>Загалом:</strong> 1200 €</li>
-                    </ul>
-                </li>
-                <li><strong>Гамбург, Німеччина:</strong>
-                    <ul>
-                        <li>Переліт: 150 €</li>
-                        <li>Житло: 300 € (4 ночі)</li>
-                        <li>Харчування: 120 €</li>
-                        <li>Транспорт: 30 €</li>
-                        <li>Розваги: 100 €</li>
-                        <li><strong>Загалом:</strong> 700 €</li>
-                    </ul>
-                </li>
-                <li><strong>Сен-Ло, Франція:</strong>
-                    <ul>
-                        <li>Переліт: 200 €</li>
-                        <li>Житло: 250 € (3 ночі)</li>
-                        <li>Харчування: 100 €</li>
-                        <li>Транспорт: 40 €</li>
-                        <li>Розваги: 80 €</li>
-                        <li><strong>Загалом:</strong> 670 €</li>
-                    </ul>
-                </li>
-            </ul>
-        </section>
-        <section>
-            <h3>Загальний бюджет</h3>
-            <p>Загальні витрати на всі подорожі: <strong>2570 €</strong></p>
+        <h1>Розрахунок вартості подорожі</h1>
+        <section class="calculator">
+            <form id="budgetForm">
+                <div class="form-group">
+                    <label for="destination">Оберіть місце:</label>
+                    <select id="destination" required>
+                        <option value="" disabled selected>Виберіть місце</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="days">Кількість днів:</label>
+                    <input type="number" id="days" min="1" value="1" required>
+                </div>
+            </form>
+            <div id="result" class="result-container"></div>
         </section>
     </article>
 </main>
@@ -74,5 +49,8 @@
         <h5><a href="https://github.com/casaviadisto/casaviadisto.github.io/tree/main">GiHhub</a></h5>
     </div>
 </footer>
+
+<script src="scripts/budget.js"></script>
+
 </body>
 </html>

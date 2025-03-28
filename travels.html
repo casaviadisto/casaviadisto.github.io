@@ -1,13 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="./styles/base.css">
-    <link rel="stylesheet" href="styles/travels_places.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мої подорожі</title>
+    <link rel="stylesheet" href="./styles/base.css">
+    <link rel="stylesheet" href="./styles/travels_places.css">
 </head>
 <body>
 <header>
@@ -15,67 +13,72 @@
         <ul>
             <li><a href="./index.html">Головна</a></li>
             <li><a href="./travels.html">Мої подорожі</a></li>
-            <li><a href="./places.html">Місця для відвідування</a></li>
+            <li><a href="./places.html">Місця</a></li>
             <li><a href="./budget.html">Бюджет</a></li>
         </ul>
     </nav>
     <hr>
 </header>
+
 <main>
     <h1>Мої подорожі</h1>
+
     <article id="travels">
-        <div class="completed" id="completed">
-            <h3>Завершені подорожі:</h3>
+        <div class="card">
+            <h3>Завершені подорожі</h3>
+            <div id="completed"></div>
         </div>
-        <div class="planned" id="planned">
-            <h3>Заплановані подорожі:</h3>
+
+        <div class="card">
+            <h3>Заплановані подорожі</h3>
+            <div id="planned"></div>
         </div>
     </article>
-    <h2>Додати подорож:</h2>
-    <form id="travel_form">
-        <div class="travel_form_options">
-            <div>
-                <label for="travel_place">Місце подорожі:</label>
-                <select id="travel_place" name="place" required>
+
+    <form id="travel_form" class="card">
+        <h2>Додати подорож</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="travel_place">Місце</label>
+                <select class="form-input" id="travel_place" name="place" required>
                     <option value="">Оберіть місце</option>
-                    <!-- Опції будуть додані через JS -->
                 </select>
             </div>
-
-            <div>
-                <label for="travel_date_start">Дата початку подорожі:</label>
-                <input type="date" id="travel_date_start" name="dateStart" required>
+            <div class="form-group">
+                <label for="travel_date_start">Початок</label>
+                <input type="date" class="form-input" id="travel_date_start" name="dateStart" required>
             </div>
-
-            <div>
-                <label for="travel_date_end">Дата кінця подорожі:</label>
-                <input type="date" id="travel_date_end" name="dateEnd" required>
+            <div class="form-group">
+                <label for="travel_date_end">Кінець</label>
+                <input type="date" class="form-input" id="travel_date_end" name="dateEnd" required>
             </div>
-            <div>
-                <label for="travel_type">Тип подорожі:</label>
-                <select id="travel_type" name="type">
+            <div class="form-group">
+                <label for="travel_type">Тип</label>
+                <select class="form-input" id="travel_type" name="type">
                     <option value="completed">Завершена</option>
                     <option value="planned">Запланована</option>
                 </select>
             </div>
         </div>
-        <div class="travel_form_description">
-            <label for="travel_description">Опис:</label>
-            <textarea id="travel_description" name="description" rows="4" required></textarea>
+        <div class="form-group">
+            <label for="travel_description">Опис</label>
+            <textarea class="form-textarea" id="travel_description" name="description" required></textarea>
         </div>
-        <div class="travel_form_submit">
-            <button type="submit">Додати</button>
+        <div class="form-submit">
+            <button type="submit" class="btn btn-primary">Додати</button>
         </div>
     </form>
 </main>
+
 <footer>
     <hr>
     <div>
-        <h5>Виконав студент групи ОІ-24 Антон. </h5>
+        <h5>Студент ОІ-24 Антон</h5>
         <h5><a href="https://codeberg.org/casaviadisto/web_2025/">Codeberg</a></h5>
-        <h5><a href="https://github.com/casaviadisto/casaviadisto.github.io/tree/main">GiHhub</a></h5>
+        <h5><a href="https://github.com/casaviadisto">GitHub</a></h5>
     </div>
 </footer>
+
 <script src="scripts/travels.js"></script>
 </body>
 </html>

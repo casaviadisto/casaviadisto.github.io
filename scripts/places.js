@@ -2,7 +2,6 @@ let db = {};
 const STORAGE_KEY = 'travelData';
 const $places = document.querySelector('#places');
 
-// Функції для роботи з localStorage
 function loadFromStorage() {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : null;
@@ -10,28 +9,6 @@ function loadFromStorage() {
 
 function saveToStorage(data) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-function loadData() {
-    const storedData = loadFromStorage();
-
-    if(storedData) {
-        db = storedData;
-        initPage();
-    } else {
-        fetch('../db.json')
-            .then(res => res.json())
-            .then(data => {
-                db = data;
-                saveToStorage(db);
-                initPage();
-            })
-            .catch(error => {
-                console.error('Помилка завантаження даних:', error);
-                db = { travels: [], travel_places: [] };
-                initPage();
-            });
-    }
 }
 
 function initPage() {
@@ -42,57 +19,43 @@ function initPage() {
 }
 
 function renderPlaces() {
-    $places.innerHTML = '';
-    db.travel_places.forEach((place, index) => {
-        const html = `
-            <section class="place-item" data-index="${index}">
-                <div class="place-header">
-                    <h4>${place.title}</h4>
-                    <div>
-                        <button class="toggle-reviews-btn">Показати відгуки</button>
-                        <button class="delete-place-btn">Видалити</button>
-                    </div>
+    $places.innerHTML = db.travel_places.map((place, index) => `
+        <div class="card" data-index="${index}">
+            <div class="card-header">
+                <h4>${place.title}</h4>
+                <div>
+                    <button class="btn btn-toggle">Показати відгуки</button>
+                    <button class="btn btn-danger">Видалити</button>
                 </div>
-                
-                <div class="place-content">
-                    <img src="${place.img}" alt="${place.title}" 
-                         class="${index % 2 ? 'float-right' : 'float-left'}">
-                    <div class="place-text">
-                        <p>${place.text}</p>
-                        <div class="prices">
-                            <p><strong>Ціна:</strong></p>
-                            <p>Переліт: ${place.prices.flight}€</p>
-                            <p>Проживання: ${place.prices.live}€/доба</p>
+            </div>
+            <img src="${place.img}" alt="${place.title}" class="img-float ${index % 2 ? 'float-right' : 'float-left'}">
+            <p>${place.text}</p>
+            <div class="price-list">
+                <p><strong>Ціни:</strong></p>
+                <p>Переліт: ${place.prices.flight}€</p>
+                <p>Проживання: ${place.prices.live}€/доба</p>
+            </div>
+            <div class="clearfix"></div>    
+            <div class="reviews-container" style="display: none;">
+                <h5>Відгуки:</h5>
+                <div class="reviews-list">
+                    ${place.reviews.map((review, i) => `
+                        <div class="review-item">
+                            <p>${review}</p>
+                            <button class="btn btn-danger review-controls" 
+                                data-place-index="${index}"
+                                data-review-index="${i}">×</button>
                         </div>
-                    </div>
-                    <div class="clearfix"></div>
+                    `).join('')}
                 </div>
-                
-                <div class="reviews-container" style="display: none;">
-                    <h5>Відгуки:</h5>
-                    <div class="reviews-list">
-                        ${place.reviews.map((review, reviewIndex) => `
-                            <div class="review">
-                                <p>${review}</p>
-                                <button class="delete-review-btn" 
-                                        data-place-index="${index}"
-                                        data-review-index="${reviewIndex}">
-                                    Видалити
-                                </button>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="new-review">
-                        <textarea class="new-review-text" 
-                                placeholder="Напишіть свій відгук"></textarea>
-                        <button class="add-review-btn">Додати відгук</button>
-                    </div>
+                <div class="new-review">
+                    <textarea class="form-textarea new-review-text" 
+                            placeholder="Напишіть відгук"></textarea>
+                    <button class="btn btn-primary add-review-btn">Додати</button>
                 </div>
-                <hr>
-            </section>
-        `;
-        $places.insertAdjacentHTML('beforeend', html);
-    });
+            </div>
+        </div>
+    `).join('');
 }
 
 function setupFormHandlers() {
@@ -113,18 +76,16 @@ function setupFormHandlers() {
 
         db.travel_places.push(newPlace);
         saveToStorage(db);
-        renderPlaces();
-        setupReviewToggles();
-        setupAddReviewHandlers();
+        initPage();
         e.target.reset();
     });
 }
 
 function setupReviewToggles() {
-    document.querySelectorAll('.toggle-reviews-btn').forEach(btn => {
+    document.querySelectorAll('.btn-toggle').forEach(btn => {
         btn.addEventListener('click', function() {
-            const container = this.closest('.place-item').querySelector('.reviews-container');
-            const isHidden = window.getComputedStyle(container).display === 'none';
+            const container = this.closest('.card').querySelector('.reviews-container');
+            const isHidden = container.style.display === 'none';
 
             container.style.display = isHidden ? 'block' : 'none';
             this.textContent = isHidden ? 'Сховати відгуки' : 'Показати відгуки';
@@ -133,9 +94,7 @@ function setupReviewToggles() {
                 container.style.maxHeight = container.scrollHeight + 'px';
             } else {
                 container.style.maxHeight = '0';
-                setTimeout(() => {
-                    container.style.maxHeight = null;
-                }, 300);
+                setTimeout(() => container.style.maxHeight = null, 300);
             }
         });
     });
@@ -144,50 +103,39 @@ function setupReviewToggles() {
 function setupAddReviewHandlers() {
     document.querySelectorAll('.add-review-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const placeIndex = this.closest('.place-item').dataset.index;
+            const placeIndex = this.closest('.card').dataset.index;
             const reviewText = this.previousElementSibling.value;
 
             if(reviewText.trim()) {
                 db.travel_places[placeIndex].reviews.push(reviewText);
                 saveToStorage(db);
-                renderPlaces();
-                setupReviewToggles();
-                setupAddReviewHandlers();
-                this.previousElementSibling.value = '';
+                initPage();
             }
         });
     });
 }
 
-function deletePlace(e) {
-    const index = e.target.closest('.place-item').dataset.index;
-    if(confirm('Видалити це місце?')) {
-        db.travel_places.splice(index, 1);
-        saveToStorage(db);
-        renderPlaces();
-    }
-}
-
-function deleteReview(e) {
-    const placeIndex = e.target.dataset.placeIndex;
-    const reviewIndex = e.target.dataset.reviewIndex;
-
-    db.travel_places[placeIndex].reviews.splice(reviewIndex, 1);
-    saveToStorage(db);
-    renderPlaces();
-    setupReviewToggles();
-    setupAddReviewHandlers();
-}
-
-// Обробники подій
 document.addEventListener('click', function(e) {
-    if(e.target.classList.contains('delete-place-btn')) {
-        deletePlace(e);
-    }
-    if(e.target.classList.contains('delete-review-btn')) {
-        deleteReview(e);
+    if(e.target.classList.contains('btn-danger')) {
+        if(e.target.closest('.card')) {
+            const index = e.target.closest('.card').dataset.index;
+            if(confirm('Видалити місце?')) {
+                db.travel_places.splice(index, 1);
+                saveToStorage(db);
+                initPage();
+            }
+        }
+        else if(e.target.classList.contains('review-controls')) {
+            const placeIndex = e.target.dataset.placeIndex;
+            const reviewIndex = e.target.dataset.reviewIndex;
+            db.travel_places[placeIndex].reviews.splice(reviewIndex, 1);
+            saveToStorage(db);
+            initPage();
+        }
     }
 });
 
-// Ініціалізація
-document.addEventListener('DOMContentLoaded', loadData);
+document.addEventListener('DOMContentLoaded', () => {
+    db = loadFromStorage() || { travels: [], travel_places: [] };
+    initPage();
+});

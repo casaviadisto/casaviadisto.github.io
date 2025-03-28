@@ -7,7 +7,7 @@
     object-fit: none;
     height: 450px;
     width: 100%;
-    object-position: bottom;
+    object-position: left bottom;
 }
 
 img{
