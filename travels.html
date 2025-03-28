@@ -36,21 +36,20 @@
         <div class="travel_form_options">
             <div>
                 <label for="travel_place">Місце подорожі:</label>
-                <input type="text" id="travel_place" name="place" required>
+                <select id="travel_place" name="place" required>
+                    <option value="">Оберіть місце</option>
+                    <!-- Опції будуть додані через JS -->
+                </select>
             </div>
 
             <div>
                 <label for="travel_date_start">Дата початку подорожі:</label>
-                <input type="date" id="travel_date_start" name="date" required>
+                <input type="date" id="travel_date_start" name="dateStart" required>
             </div>
 
             <div>
                 <label for="travel_date_end">Дата кінця подорожі:</label>
-                <input type="date" id="travel_date_end" name="date" required>
-            </div>
-            <div>
-                <label for="travel_photo">Фото (посилання на зображення):</label>
-                <input type="url" id="travel_photo" name="photo" required>
+                <input type="date" id="travel_date_end" name="dateEnd" required>
             </div>
             <div>
                 <label for="travel_type">Тип подорожі:</label>
@@ -60,11 +59,11 @@
                 </select>
             </div>
         </div>
-        <div class="form_description">
-            <label for="description">Опис:</label>
-            <textarea id="description" name="description" rows="4" required></textarea>
+        <div class="travel_form_description">
+            <label for="travel_description">Опис:</label>
+            <textarea id="travel_description" name="description" rows="4" required></textarea>
         </div>
-        <div class="form_submit">
+        <div class="travel_form_submit">
             <button type="submit">Додати</button>
         </div>
     </form>

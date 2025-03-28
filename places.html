@@ -26,24 +26,36 @@
     <article id="places">
     </article>
     <h2>Додати подорож:</h2>
+    <h2>Додати місце:</h2>
     <form id="place_form">
-        <div class="form_options">
+        <div class="place_form_options">
             <div>
-                <label for="place">Місце подорожі:</label>
-                <input type="text" id="place" name="place" required>
+                <label for="place_place">Назва місця:</label>
+                <input type="text" id="place_place" name="place" required>
             </div>
 
             <div>
-                <label for="photo">Фото (посилання на зображення):</label>
-                <input type="url" id="photo" name="photo" required>
+                <label for="place_photo">Фото (посилання на зображення):</label>
+                <input type="url" id="place_photo" name="photo" required>
+            </div>
+
+            <div>
+                <label for="flight_cost">Вартість перельоту (€):</label>
+                <input type="number" id="flight_cost" name="flight_cost" required>
+            </div>
+
+            <div>
+                <label for="live_cost">Вартість проживання за добу (€):</label>
+                <input type="number" id="live_cost" name="live_cost" required>
             </div>
 
         </div>
-        <div class="form_description">
-            <label for="description">Опис:</label>
-            <textarea id="description" name="description" rows="4" required></textarea>
+        <div class="place_form_description">
+            <label for="place_description">Опис:</label>
+            <textarea id="place_description" name="description" rows="4" required></textarea>
         </div>
-        <div class="form_submit">
+
+        <div class="place_form_submit">
             <button type="submit">Додати</button>
         </div>
     </form>

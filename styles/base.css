@@ -78,6 +78,7 @@ footer a:hover {
     text-shadow: cadetblue 1px 1px 3px;
 }
 
+
 @media (max-width: 768px) {
     .float-left{
         float: none;

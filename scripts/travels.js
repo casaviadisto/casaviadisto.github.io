@@ -1,138 +1,167 @@
-const article_data = [
-    {
-        completed: true,
-        title: "Париж, Франція",
-        data: "23.06.1940 - 24.06.1940",
-        img: "/images/Paris.jpg",
-        text: `Париж під час окупації 1940-1944 років став важливим етапом у історії Німеччини,
-            символізуючи велич і силу німецької армії. Після блискавичної кампанії, що призвела до
-            капітуляції Франції, німецькі війська увійшли в місто, демонструючи свою військову міць і
-            організацію. Окупація Парижа стала свідченням стратегічного успіху Німеччини в Другій
-            світовій війні.
-            <br>
-            Протягом цього періоду німецька адміністрація намагалася впровадити порядок і стабільність у
-            місті, що переживало хаос. Багато німців вважали, що їхня присутність у Парижі сприяє
-            розвитку інфраструктури та економіки. Німецькі архітектори та планувальники працювали над
-            проектами, які мали на меті покращити місто, зберігаючи його культурну спадщину.
-            <br>
-            Однак, незважаючи на труднощі, німецькі солдати також мали можливість насолоджуватися красою
-            Парижа, його мистецтвом і культурою. Місто стало місцем зустрічі різних культур, де німецькі
-            військові могли спостерігати за французьким способом життя, що, в свою чергу, підкреслювало
-            велич Німеччини як культурної та військової сили.
-            <br>
-            Париж, хоч і під окупацією, залишався важливим символом у контексті німецької історії,
-            демонструючи амбіції та досягнення нації в складні часи.`
-    },
-    {
-        completed: true,
-        title: "Гамбург, Німетчина",
-        data: "24.07.1943 - 03.08.1943",
-        img: "/images/hamburg.jpg",
-        text: `Гамбург під час бойових дій у Другій світовій війні став ареною жорстоких зіткнень і
-            стратегічних операцій. Як важливий портовий місто, Гамбург мав величезне значення для
-            німецької економіки та військових зусиль. Однак, з початком бомбардувань союзників у 1943
-            році, місто зазнало значних руйнувань.
-            <br>
-            Бойові дії в Гамбурзі, зокрема під час операції \"Гамбург\", призвели до масових руйнувань
-            інфраструктури та житлових районів. Німецькі війська, незважаючи на труднощі, проявляли
-            стійкість і мужність, намагаючись захистити місто від ворога. Місцеві жителі також
-            демонстрували відвагу, підтримуючи своїх солдатів і намагаючись відновити нормальне життя в
-            умовах війни.
-            <br>
-            Під час бомбардувань багато гамбуржців ховалися в підземних укриттях, сподіваючись на краще.
-            Водночас, місто стало символом німецької стійкості, адже його мешканці продовжували
-            працювати на заводах, забезпечуючи армію необхідними ресурсами.
-            <br>
-            Незважаючи на жахи війни, Гамбург залишався важливим центром для німецької культури та
-            ідентичності. Після закінчення бойових дій місто почало відновлюватися, демонструючи силу і
-            рішучість німецького народу в складні часи. Гамбург, з його історією та спадщиною, став
-            символом відродження та надії на майбутнє.`
-    },
-    {
-        completed: false,
-        title: "Сен-Ло, Франція",
-        data: "09.07.1944 - 24.07.1944",
-        img: "/images/saint-lo.jpeg",
-        text: `Сен-Ло, маленьке містечко на північному заході Франції, стало важливим стратегічним пунктом під
-            час Другої світової війни, особливо під час бойових дій у 1944 році. Місто зазнало значних
-            руйнувань внаслідок запеклих боїв між союзними військами та німецькими захисниками.
-            <br>
-            Бої за Сен-Ло були жорстокими, і місто стало символом стійкості та мужності. Німецькі війська
-            намагалися утримати контроль над містом, але союзники, використовуючи свою чисельну перевагу та
-            сучасну техніку, поступово просувалися вперед. Місцеві жителі, які пережили жахи війни, стали
-            свідками руйнування своїх домівок, але також проявили неймовірну відвагу, допомагаючи пораненим
-            і підтримуючи солдатів.
-            <br>
-            Після запеклих боїв у липні 1944 року Сен-Ло був звільнений, але ціна цього звільнення була
-            висока. Місто було майже повністю зруйноване, проте його відновлення стало символом надії та
-            відродження. Сен-Ло, хоч і зранене, стало свідком сили людського духу, адже його мешканці,
-            незважаючи на всі труднощі, почали відновлювати своє життя та місто, яке стало важливим етапом у
-            визвольній боротьбі Франції.`
-    }
-];
-
-const $completed = document.querySelector('#completed')
-const $planned = document.querySelector('#planned')
+let db = {};
+const STORAGE_KEY = 'travelData';
 
 let completed_counter = 0;
 let planned_counter = 0;
 
-function add_section(data) {
-    let i = 0
+const $completed = document.querySelector('#completed');
+const $planned = document.querySelector('#planned');
 
-    image_class = ["float-left", "float-right"];
-    do {
-        console.log(data[i]);
-        console.log("***************");
 
-        let html =
-            `
-            <section>
-                <h4>${data[i].title}</h4>
-                <p><strong>Дата:</strong> ${data[i].data}</p>
-                <img class="${image_class[(data[i].completed ? completed_counter : planned_counter) % 2]}" src="${data[i].img}" alt="${data[i].title}">
-                <div class="text">
-                    <p>
-                        ${data[i].text}
-                    </p>
-                </div>
-                <hr>
-            </section>
-        `
-        if (data[i].completed) {
-            $completed.insertAdjacentHTML('beforeend', html)
-            completed_counter++;
-        } else {
-            $planned.insertAdjacentHTML('beforeend', html)
-            planned_counter++;
-        }
-        i++
-    } while (i < data.length)
+// Функція для форматування дати з ISO (2025-03-03) в ДД.ММ.РРРР
+function formatDate(isoString) {
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
 }
 
-add_section(article_data);
 
-document.getElementById('travelForm').addEventListener('submit', function (event) {
+
+// Функції для роботи з localStorage
+function loadFromStorage() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : null;
+}
+
+function saveToStorage(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadData() {
+    const storedData = loadFromStorage();
+
+    if(storedData) {
+        db = storedData;
+        initPage();
+    } else {
+        fetch('../db.json')
+            .then(res => res.json())
+            .then(data => {
+                // Конвертуємо дати при першому завантаженні
+                data.travels.forEach(travel => {
+                    if (travel.dateStart && travel.dateStart.includes('-')) {
+                        travel.dateStart = formatDate(travel.dateStart);
+                    }
+                    if (travel.dateEnd && travel.dateEnd.includes('-')) {
+                        travel.dateEnd = formatDate(travel.dateEnd);
+                    }
+                });
+
+                db = data;
+                saveToStorage(db);
+                initPage();
+            })
+            .catch(error => {
+                console.error('Помилка завантаження даних:', error);
+                // Створюємо пусту структуру, якщо файл не знайдено
+                db = { travels: [], travel_places: [] };
+                initPage();
+            });
+    }
+}
+
+function initPage() {
+    const placeSelect = document.getElementById('travel_place');
+    placeSelect.innerHTML = '<option value="">Оберіть місце</option>';
+
+    if (db.travel_places) {
+        db.travel_places.forEach(place => {
+            const option = document.createElement('option');
+            option.value = place.title;
+            option.textContent = place.title;
+            placeSelect.appendChild(option);
+        });
+    }
+
+    add_section(db.travels || []);
+}
+
+function add_section(data) {
+    $completed.innerHTML = '';
+    $planned.innerHTML = '';
+    completed_counter = 0;
+    planned_counter = 0;
+
+    data.forEach((item, index) => {
+        const html = `
+            <section>
+                <div class="place-header">
+                    <h4>${item.city || item.title}</h4>    
+                    <button type="button" onclick="deleteTravel(${index})" class="delete-btn">Видалити</button>            
+                </div> 
+                <p><strong>Дата:</strong> ${item.dateStart || item.period} - ${item.dateEnd || ''}</p>
+                <img class="${index % 2 ? 'float-right' : 'float-left'}" 
+                     src="${item.img}" 
+                     alt="${item.city || item.title}">
+                <div class="text">
+                    <p>${item.text}</p>
+                </div>
+            </section>
+            <hr>
+        `;
+
+        if(item.completed) {
+            $completed.insertAdjacentHTML('beforeend', html);
+            completed_counter++;
+        } else {
+            $planned.insertAdjacentHTML('beforeend', html);
+            planned_counter++;
+        }
+    });
+}
+
+function deleteTravel(index) {
+    if (confirm('Ви впевнені, що хочете видалити цю подорож?')) {
+        db.travels.splice(index, 1);
+        saveToStorage(db);
+        add_section(db.travels);
+    }
+}
+
+document.getElementById('travel_form').addEventListener('submit', function(event) {
     event.preventDefault();
-    let formData = new FormData(event.target);
-    let data = Object.fromEntries(formData.entries());
-    console.log("formData:", formData);
-    console.log('********');
-    console.log("DATA:", data);
+    const formData = new FormData(event.target);
 
-    let completed = false;
-    if (data.type === "completed") {
-        completed = true;
+    const place = formData.get('place');
+    if (!place) {
+        alert('Будь ласка, оберіть місце подорожі');
+        return;
     }
-    let section_data = {
-        completed: completed,
-        title: data.place,
-        data: data.date,
-        img: data.photo,
-        text: data.description
+
+    console.log(formData);
+
+    const newTravel = {
+        city: place,
+        dateStart: formatDate(formData.get('dateStart')),
+        dateEnd: formatDate(formData.get('dateEnd')),
+        completed: formData.get('type') === 'completed',
+        img: '',
+        text: formData.get('description')
+    };
+
+    // Пошук фото для обраного місця
+    if (db.travel_places) {
+        const selectedPlace = db.travel_places.find(p => p.title === place);
+        if (selectedPlace) {
+            newTravel.img = selectedPlace.img;
+        }
     }
-    article_data.push(section_data);
-    console.log("******ADD_SECTION***********");
-    add_section([section_data]);
+
+    if (!db.travels) {
+        db.travels = [];
+    }
+    // console.log('****************');
+    // console.log(newTravel);
+
+    db.travels.push(newTravel);
+    saveToStorage(db);
+    add_section(db.travels);
     // event.target.reset();
+});
+
+// Ініціалізація при завантаженні сторінки
+document.addEventListener('DOMContentLoaded', function() {
+    loadData();
 });

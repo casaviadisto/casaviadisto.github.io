@@ -1,81 +1,193 @@
-const article_data = [
-    {
-        title: "Пальміра, Сирія",
-        img: "/images/palmyra.jpg",
-        text: `Пальміра — це стародавнє місто, яке символізує велич і духовну силу людського духу, зокрема тих
-                    народів, які, як і українці, боролися за свою свободу, культуру та ідентичність. Його
-                    архітектура, культура та історія нагадують про те, що кожен народ, зокрема український, здатний
-                    до великих досягнень, якщо зберігає свою самобутність і прагне до розвитку. Пальміра була
-                    центром торгівлі, мистецтва та науки, що підкреслює значення знань, творчості та єдності в
-                    будь-якій цивілізації.
-                    <br>
-                    З точки зору українського патріотизму, Пальміра є символом того, що навіть у найскладніших
-                    умовах можна зберегти свою культуру та ідентичність. Руїни цього міста нагадують про важливість
-                    пам’яті предків, які будували великі держави, творили мистецтво та захищали свою землю.
-                    Патріотизм для українців — це не лише любов до Батьківщини, але й відповідальність за збереження
-                    спадщини, яку залишили наші предки.
-                    <br>
-                    Пальміра також символізує стійкість і мужність. Незважаючи на руйнування та час, її велич
-                    залишається натхненням для тих, хто бореться за свободу та незалежність. Для українців це
-                    нагадування про те, що навіть у найважчі часи можна вистояти, якщо зберігати віру в себе, свою
-                    культуру та історію. Патріотизм у цьому контексті — це готовність захищати свою землю, мову та
-                    традиції, щоб передати їх майбутнім поколінням.`,
-        price: "Від 500 € (переліт, житло, екскурсії)",
-        reviews: "Неймовірне місце для любителів історії!"
-    },
-    {
-        title: "Кабул, Авганістан",
-        img: "/images/kabul.jpg",
-        text: `Кабул, столиця Афганістану, для українських миротворців став місцем, де вони продемонстрували
-                    свою відвагу, професіоналізм та готовність боротися за мир і безпеку. Українські військові, які
-                    брали участь у місіях у Афганістані, стали частиною міжнародних зусиль у боротьбі з тероризмом,
-                    захищаючи не лише інтереси світової спільноти, але й утверджуючи принципи свободи,
-                    справедливості та людської гідності.
-                    <br>
-                    Для українців-миротворців Кабул — це не просто місто на карті, а символ мужності та
-                    відповідальності. Вони воювали не лише проти терористів, але й за право мирних жителів жити без
-                    страху та насильства. Українські військові показали, що навіть далеко від рідної землі можна
-                    бути носіями миру та стабільності, захищаючи цінності, які об’єднують всі народи.
-                    <br>
-                    Український патріотизм у цьому контексті — це не лише любов до своєї країни, але й готовність
-                    брати участь у міжнародних зусиллях для захисту загальнолюдських ідеалів. Кабул нагадує нам, що
-                    боротьба з тероризмом — це боротьба за майбутнє, де кожна людина може жити в безпеці та свободі.
-                    Українські миротворці, які служили в Афганістані, стали прикладом того, як військовий
-                    професіоналізм і гуманізм можуть йти рука об руку, залишаючи слід у історії як герої, які
-                    боролися за мир.`,
-        price: "Від 800 € (переліт, житло, екскурсії)",
-        reviews: "Заплачу 1600 € за те, що б ніколи сюди не їхати."
+let db = {};
+const STORAGE_KEY = 'travelData';
+const $places = document.querySelector('#places');
+
+// Функції для роботи з localStorage
+function loadFromStorage() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : null;
+}
+
+function saveToStorage(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadData() {
+    const storedData = loadFromStorage();
+
+    if(storedData) {
+        db = storedData;
+        initPage();
+    } else {
+        fetch('../db.json')
+            .then(res => res.json())
+            .then(data => {
+                db = data;
+                saveToStorage(db);
+                initPage();
+            })
+            .catch(error => {
+                console.error('Помилка завантаження даних:', error);
+                db = { travels: [], travel_places: [] };
+                initPage();
+            });
     }
-];
+}
 
+function initPage() {
+    renderPlaces();
+    setupFormHandlers();
+    setupReviewToggles();
+    setupAddReviewHandlers();
+}
 
-const $places = document.querySelector('#places')
-
-function add_section(data) {
-    let i = 0
-    image_class = ["float-left", "float-right"];
-    do {
-        let html =
-            `
-            <section>
-                <h4>${data[i].title}</h4>
-                <img class="${image_class[i % 2]}" src="${data[i].img}" alt="${data[i].title}">
-                <div class="text">
-                    <p>
-                        ${data[i].text}
-                        <br>
-                        <strong>Ціна: </strong> ${data[i].price}
-                        <br>
-                        <strong>Відгуки: </strong> ${data[i].reviews}
-                    </p>
+function renderPlaces() {
+    $places.innerHTML = '';
+    db.travel_places.forEach((place, index) => {
+        const html = `
+            <section class="place-item" data-index="${index}">
+                <div class="place-header">
+                    <h4>${place.title}</h4>
+                    <div>
+                        <button class="toggle-reviews-btn">Показати відгуки</button>
+                        <button class="delete-place-btn">Видалити</button>
+                    </div>
+                </div>
+                
+                <div class="place-content">
+                    <img src="${place.img}" alt="${place.title}" 
+                         class="${index % 2 ? 'float-right' : 'float-left'}">
+                    <div class="place-text">
+                        <p>${place.text}</p>
+                        <div class="prices">
+                            <p><strong>Ціна:</strong></p>
+                            <p>Переліт: ${place.prices.flight}€</p>
+                            <p>Проживання: ${place.prices.live}€/доба</p>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                
+                <div class="reviews-container" style="display: none;">
+                    <h5>Відгуки:</h5>
+                    <div class="reviews-list">
+                        ${place.reviews.map((review, reviewIndex) => `
+                            <div class="review">
+                                <p>${review}</p>
+                                <button class="delete-review-btn" 
+                                        data-place-index="${index}"
+                                        data-review-index="${reviewIndex}">
+                                    Видалити
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="new-review">
+                        <textarea class="new-review-text" 
+                                placeholder="Напишіть свій відгук"></textarea>
+                        <button class="add-review-btn">Додати відгук</button>
+                    </div>
                 </div>
                 <hr>
             </section>
-        `
-
-        $places.insertAdjacentHTML('beforeend', html)
-        i++
-    } while (i < data.length)
+        `;
+        $places.insertAdjacentHTML('beforeend', html);
+    });
 }
 
-add_section(article_data);
+function setupFormHandlers() {
+    document.getElementById('place_form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        const newPlace = {
+            title: formData.get('place'),
+            img: formData.get('photo'),
+            text: formData.get('description'),
+            prices: {
+                flight: Number(formData.get('flight_cost')),
+                live: Number(formData.get('live_cost'))
+            },
+            reviews: []
+        };
+
+        db.travel_places.push(newPlace);
+        saveToStorage(db);
+        renderPlaces();
+        setupReviewToggles();
+        setupAddReviewHandlers();
+        e.target.reset();
+    });
+}
+
+function setupReviewToggles() {
+    document.querySelectorAll('.toggle-reviews-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const container = this.closest('.place-item').querySelector('.reviews-container');
+            const isHidden = window.getComputedStyle(container).display === 'none';
+
+            container.style.display = isHidden ? 'block' : 'none';
+            this.textContent = isHidden ? 'Сховати відгуки' : 'Показати відгуки';
+
+            if(isHidden) {
+                container.style.maxHeight = container.scrollHeight + 'px';
+            } else {
+                container.style.maxHeight = '0';
+                setTimeout(() => {
+                    container.style.maxHeight = null;
+                }, 300);
+            }
+        });
+    });
+}
+
+function setupAddReviewHandlers() {
+    document.querySelectorAll('.add-review-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const placeIndex = this.closest('.place-item').dataset.index;
+            const reviewText = this.previousElementSibling.value;
+
+            if(reviewText.trim()) {
+                db.travel_places[placeIndex].reviews.push(reviewText);
+                saveToStorage(db);
+                renderPlaces();
+                setupReviewToggles();
+                setupAddReviewHandlers();
+                this.previousElementSibling.value = '';
+            }
+        });
+    });
+}
+
+function deletePlace(e) {
+    const index = e.target.closest('.place-item').dataset.index;
+    if(confirm('Видалити це місце?')) {
+        db.travel_places.splice(index, 1);
+        saveToStorage(db);
+        renderPlaces();
+    }
+}
+
+function deleteReview(e) {
+    const placeIndex = e.target.dataset.placeIndex;
+    const reviewIndex = e.target.dataset.reviewIndex;
+
+    db.travel_places[placeIndex].reviews.splice(reviewIndex, 1);
+    saveToStorage(db);
+    renderPlaces();
+    setupReviewToggles();
+    setupAddReviewHandlers();
+}
+
+// Обробники подій
+document.addEventListener('click', function(e) {
+    if(e.target.classList.contains('delete-place-btn')) {
+        deletePlace(e);
+    }
+    if(e.target.classList.contains('delete-review-btn')) {
+        deleteReview(e);
+    }
+});
+
+// Ініціалізація
+document.addEventListener('DOMContentLoaded', loadData);
