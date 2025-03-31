@@ -43,9 +43,33 @@
     transform: translateY(-50%);
 }
 
+.review-item p{
+    margin-right: 45px;
+}
+
 .price-list {
     margin: 15px 0;
     padding: 10px;
     background: #f8f9fa;
     border-radius: 6px;
+}
+
+.card p{
+    text-align: justify;
+
+}
+
+@media (max-width: 800px) {
+    .float-left {
+        float: none;
+        margin: 0;
+    }
+    .float-right {
+        float: none;
+        margin: 0;
+    }
+    .img-float {
+        max-width: 100%;
+        width: 100%;
+    }
 }

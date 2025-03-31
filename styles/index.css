@@ -33,9 +33,35 @@ img{
 }
 
 .poem .text {
-    margin-right: auto;
+    margin-left: 5%;
 }
 
 .poem img{
     height: 600px;
 }
+
+@media (max-width: 900px) {
+    .things{
+        flex-direction: column;
+    }
+
+    .things img{
+        width: 400px;
+        height: auto;
+        margin: 0 auto;
+    }
+
+    .poem{
+        flex-direction: column;
+    }
+    .poem img{
+        width: 400px;
+        height: auto;
+        margin: 0 auto;
+    }
+
+    .poem .text {
+        margin: 0 auto;
+    }
+}
+
