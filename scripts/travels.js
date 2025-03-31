@@ -2,7 +2,6 @@ let db = {};
 const STORAGE_KEY = 'travelData';
 
 async function initStorage() {
-    // Спроба отримати дані з localStorage
     const storedData = localStorage.getItem(STORAGE_KEY);
     if (storedData) {
         try {
@@ -12,13 +11,10 @@ async function initStorage() {
         }
     }
 
-    // Якщо даних немає - завантажуємо з db.json
     try {
         const response = await fetch('/db.json');
         if (!response.ok) throw new Error('Помилка завантаження');
         const defaultData = await response.json();
-
-        // Зберігаємо в localStorage
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
         return defaultData;
     } catch (error) {
@@ -37,12 +33,15 @@ function initPage() {
     placeSelect.innerHTML = '<option value="">Оберіть місце</option>';
 
     if (db.travel_places?.length) {
-        db.travel_places.forEach(place => {
+        let index = 0;
+        do {
+            const place = db.travel_places[index];
             const option = document.createElement('option');
             option.value = place.title;
             option.textContent = place.title;
             placeSelect.appendChild(option);
-        });
+            index++;
+        } while (index < db.travel_places.length);
     }
 
     renderTravels();
@@ -53,20 +52,25 @@ function renderTravels() {
         const container = document.getElementById(containerId);
         let htmlParts = [];
 
-        travels?.forEach((travel, index) => {
-            htmlParts.push(`
-                <div class="card">
-                    <div class="card-header">
-                        <h4>${travel.city}</h4>
-                        <button class="btn btn-danger" onclick="deleteTravel(${index})">Видалити</button>
+        if (travels?.length) {
+            let index = 0;
+            do {
+                const travel = travels[index];
+                htmlParts.push(`
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>${travel.city}</h4>
+                            <button class="btn btn-danger" onclick="deleteTravel(${index})">Видалити</button>
+                        </div>
+                        <p><strong>Дата:</strong> ${travel.dateStart} - ${travel.dateEnd}</p>
+                        <img src="${travel.img}" alt="${travel.city}" class="img-float ${index % 2 ? 'float-right' : 'float-left'}">
+                        <p>${travel.text}</p>
+                        <div class="clearfix"></div>
                     </div>
-                    <p><strong>Дата:</strong> ${travel.dateStart} - ${travel.dateEnd}</p>
-                    <img src="${travel.img}" alt="${travel.city}" class="img-float ${index % 2 ? 'float-right' : 'float-left'}">
-                    <p>${travel.text}</p>
-                    <div class="clearfix"></div>
-                </div>
-            `);
-        });
+                `);
+                index++;
+            } while (index < travels.length);
+        }
 
         container.innerHTML = htmlParts.join('');
     };
