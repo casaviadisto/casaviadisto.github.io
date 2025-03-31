@@ -1,13 +1,30 @@
 let db = {};
 const STORAGE_KEY = 'travelData';
 
-function loadFromStorage() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : null;
-}
+async function initStorage() {
+    // Спроба отримати дані з localStorage
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    if (storedData) {
+        try {
+            return JSON.parse(storedData);
+        } catch (e) {
+            console.error('Помилка парсингу localStorage:', e);
+        }
+    }
 
-function saveToStorage(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    // Якщо даних немає - завантажуємо з db.json
+    try {
+        const response = await fetch('/db.json');
+        if (!response.ok) throw new Error('Помилка завантаження');
+        const defaultData = await response.json();
+
+        // Зберігаємо в localStorage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+        return defaultData;
+    } catch (error) {
+        console.error('Помилка завантаження даних:', error);
+        return { travels: [], travel_places: [] };
+    }
 }
 
 function formatDate(isoString) {
@@ -20,15 +37,12 @@ function initPage() {
     placeSelect.innerHTML = '<option value="">Оберіть місце</option>';
 
     if (db.travel_places?.length) {
-        let index = 0;
-        do {
-            const place = db.travel_places[index];
+        db.travel_places.forEach(place => {
             const option = document.createElement('option');
             option.value = place.title;
             option.textContent = place.title;
             placeSelect.appendChild(option);
-            index++;
-        } while (index < db.travel_places.length);
+        });
     }
 
     renderTravels();
@@ -39,37 +53,32 @@ function renderTravels() {
         const container = document.getElementById(containerId);
         let htmlParts = [];
 
-        if (travels?.length) {
-            let index = 0;
-            do {
-                const travel = travels[index];
-                htmlParts.push(`
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>${travel.city}</h4>
-                            <button class="btn btn-danger" onclick="deleteTravel(${index})">Видалити</button>
-                        </div>
-                        <p><strong>Дата:</strong> ${travel.dateStart} - ${travel.dateEnd}</p>
-                        <img src="${travel.img}" alt="${travel.city}" class="img-float ${index % 2 ? 'float-right' : 'float-left'}">
-                        <p>${travel.text}</p>
-                        <div class="clearfix"></div>
+        travels?.forEach((travel, index) => {
+            htmlParts.push(`
+                <div class="card">
+                    <div class="card-header">
+                        <h4>${travel.city}</h4>
+                        <button class="btn btn-danger" onclick="deleteTravel(${index})">Видалити</button>
                     </div>
-                `);
-                index++;
-            } while (index < travels.length);
-        }
+                    <p><strong>Дата:</strong> ${travel.dateStart} - ${travel.dateEnd}</p>
+                    <img src="${travel.img}" alt="${travel.city}" class="img-float ${index % 2 ? 'float-right' : 'float-left'}">
+                    <p>${travel.text}</p>
+                    <div class="clearfix"></div>
+                </div>
+            `);
+        });
 
         container.innerHTML = htmlParts.join('');
     };
 
-    renderSection('completed', db.travels?.filter(t => t.completed) || []);
-    renderSection('planned', db.travels?.filter(t => !t.completed) || []);
+    renderSection('completed', db.travels?.filter(t => t.completed));
+    renderSection('planned', db.travels?.filter(t => !t.completed));
 }
 
 function deleteTravel(index) {
     if(confirm('Видалити подорож?')) {
         db.travels.splice(index, 1);
-        saveToStorage(db);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
         renderTravels();
     }
 }
@@ -88,13 +97,16 @@ document.getElementById('travel_form').addEventListener('submit', function(e) {
     };
 
     db.travels.push(newTravel);
-    saveToStorage(db);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
     renderTravels();
     e.target.reset();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const storedData = loadFromStorage();
-    db = storedData || { travels: [], travel_places: [] };
-    initPage();
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        db = await initStorage();
+        initPage();
+    } catch (error) {
+        console.error('Помилка ініціалізації:', error);
+    }
 });

@@ -2,13 +2,26 @@ let db = {};
 const STORAGE_KEY = 'travelData';
 const $places = document.querySelector('#places');
 
-function loadFromStorage() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : null;
-}
+async function initStorage() {
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    if (storedData) {
+        try {
+            return JSON.parse(storedData);
+        } catch (e) {
+            console.error('Помилка парсингу localStorage:', e);
+        }
+    }
 
-function saveToStorage(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    try {
+        const response = await fetch('/db.json');
+        if (!response.ok) throw new Error('Помилка завантаження');
+        const defaultData = await response.json();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+        return defaultData;
+    } catch (error) {
+        console.error('Помилка завантаження даних:', error);
+        return { travels: [], travel_places: [] };
+    }
 }
 
 function initPage() {
@@ -21,60 +34,47 @@ function initPage() {
 function renderPlaces() {
     $places.innerHTML = '';
 
-    if (db.travel_places?.length) {
-        let index = 0;
-        do {
-            const place = db.travel_places[index];
-            let reviewsHTML = '';
+    db.travel_places?.forEach((place, index) => {
+        let reviewsHTML = place.reviews?.map((review, reviewIndex) => `
+            <div class="review-item">
+                <p>${review}</p>
+                <button class="btn btn-danger review-controls" 
+                    data-place-index="${index}"
+                    data-review-index="${reviewIndex}">×</button>
+            </div>
+        `).join('') || '';
 
-            if (place.reviews?.length) {
-                let reviewIndex = 0;
-                do {
-                    reviewsHTML += `
-                        <div class="review-item">
-                            <p>${place.reviews[reviewIndex]}</p>
-                            <button class="btn btn-danger review-controls" 
-                                data-place-index="${index}"
-                                data-review-index="${reviewIndex}">×</button>
-                        </div>
-                    `;
-                    reviewIndex++;
-                } while (reviewIndex < place.reviews.length);
-            }
-
-            $places.innerHTML += `
-                <div class="card" data-index="${index}">
-                    <div class="card-header">
-                        <h4>${place.title}</h4>
-                        <div>
-                            <button class="btn btn-toggle">Показати відгуки</button>
-                            <button class="btn btn-danger">Видалити</button>
-                        </div>
-                    </div>
-                    <img src="${place.img}" alt="${place.title}" class="img-float ${index % 2 ? 'float-right' : 'float-left'}">
-                    <p>${place.text}</p>
-                    <div class="price-list">
-                        <p><strong>Ціни:</strong></p>
-                        <p>Переліт: ${place.prices.flight}€</p>
-                        <p>Проживання: ${place.prices.live}€/доба</p>
-                    </div>
-                    <div class="clearfix"></div>    
-                    <div class="reviews-container" style="display: none;">
-                        <h5>Відгуки:</h5>
-                        <div class="reviews-list">
-                            ${reviewsHTML}
-                        </div>
-                        <div class="new-review">
-                            <textarea class="form-textarea new-review-text" 
-                                    placeholder="Напишіть відгук"></textarea>
-                            <button class="btn btn-primary add-review-btn">Додати</button>
-                        </div>
+        $places.innerHTML += `
+            <div class="card" data-index="${index}">
+                <div class="card-header">
+                    <h4>${place.title}</h4>
+                    <div>
+                        <button class="btn btn-toggle">Показати відгуки</button>
+                        <button class="btn btn-danger">Видалити</button>
                     </div>
                 </div>
-            `;
-            index++;
-        } while (index < db.travel_places.length);
-    }
+                <img src="${place.img}" alt="${place.title}" class="img-float ${index % 2 ? 'float-right' : 'float-left'}">
+                <p>${place.text}</p>
+                <div class="price-list">
+                    <p><strong>Ціни:</strong></p>
+                    <p>Переліт: ${place.prices.flight}€</p>
+                    <p>Проживання: ${place.prices.live}€/доба</p>
+                </div>
+                <div class="clearfix"></div>    
+                <div class="reviews-container" style="display: none;">
+                    <h5>Відгуки:</h5>
+                    <div class="reviews-list">
+                        ${reviewsHTML}
+                    </div>
+                    <div class="new-review">
+                        <textarea class="form-textarea new-review-text" 
+                                placeholder="Напишіть відгук"></textarea>
+                        <button class="btn btn-primary add-review-btn">Додати</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
 }
 
 function setupFormHandlers() {
@@ -169,7 +169,11 @@ document.addEventListener('click', function(e) {
     }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    db = loadFromStorage() || { travels: [], travel_places: [] };
-    initPage();
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        db = await initStorage();
+        initPage();
+    } catch (error) {
+        console.error('Помилка ініціалізації:', error);
+    }
 });
