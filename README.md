@@ -1,4 +1,5 @@
 # Web2025
 Лабораторні роботи з дисципліни: Веб технології та розробка веб застосувань
-<<<<<<< HEAD
 
+ЛР1: https://casaviadisto.github.io/lr1/
+ЛР2: https://casaviadisto.github.io/lr2/
