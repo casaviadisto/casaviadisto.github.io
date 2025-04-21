@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Місця для відвідування</title>
+    <link rel="stylesheet" href="./styles/base.css">
+    <link rel="stylesheet" href="./styles/travels_places.css">
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a href="./index.html">Головна</a></li>
+            <li><a href="./travels.html">Мої подорожі</a></li>
+            <li><a href="./places.html">Місця</a></li>
+            <li><a href="./budget.html">Бюджет</a></li>
+        </ul>
+    </nav>
+    <hr>
+</header>
+
+<main>
+    <h1>Місця для відвідування</h1>
+
+    <article id="places"></article>
+
+    <form id="place_form" class="card">
+        <h2>Додати місце</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="place_place">Назва</label>
+                <input type="text" class="form-input" id="place_place" name="place" required>
+            </div>
+            <div class="form-group">
+                <label for="place_photo">Фото</label>
+                <input type="url" class="form-input" id="place_photo" name="photo" required>
+            </div>
+            <div class="form-group">
+                <label for="flight_cost">Переліт (€)</label>
+                <input type="number" class="form-input" id="flight_cost" name="flight_cost" required>
+            </div>
+            <div class="form-group">
+                <label for="live_cost">Проживання (€/доба)</label>
+                <input type="number" class="form-input" id="live_cost" name="live_cost" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="place_description">Опис</label>
+            <textarea class="form-textarea" id="place_description" name="description" required></textarea>
+        </div>
+        <div class="form-submit">
+            <button type="submit" class="btn btn-primary">Додати</button>
+        </div>
+    </form>
+</main>
+
+<footer>
+    <hr>
+    <div>
+        <h5>Студент ОІ-24 Антон</h5>
+        <h5><a href="https://codeberg.org/casaviadisto/web_2025/">Codeberg</a></h5>
+        <h5><a href="https://github.com/casaviadisto">GitHub</a></h5>
+    </div>
+</footer>
+
+<script src="scripts/places.js"></script>
+</body>
+</html>

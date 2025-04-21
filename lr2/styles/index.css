@@ -1,0 +1,67 @@
+.history .images{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.history .images img{
+    object-fit: none;
+    height: 450px;
+    width: 100%;
+    object-position: left bottom;
+}
+
+img{
+    box-shadow: 4px 4px 4px gray;
+}
+
+.text{
+    text-align: justify;
+}
+
+.things{
+    display: flex;
+}
+
+.things img {
+    height: 500px;
+}
+
+
+
+.poem{
+    display: flex;
+}
+
+.poem .text {
+    margin-left: 5%;
+}
+
+.poem img{
+    height: 600px;
+}
+
+@media (max-width: 900px) {
+    .things{
+        flex-direction: column;
+    }
+
+    .things img{
+        width: 400px;
+        height: auto;
+        margin: 0 auto;
+    }
+
+    .poem{
+        flex-direction: column;
+    }
+    .poem img{
+        width: 400px;
+        height: auto;
+        margin: 0 auto;
+    }
+
+    .poem .text {
+        margin: 0 auto;
+    }
+}
+
