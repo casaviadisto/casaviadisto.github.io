@@ -1,0 +1,127 @@
+/* стилі для місць і подорожей*/
+.img-float {
+    max-width: 45%;
+    border-radius: 6px;
+    shape-outside: margin-box;
+}
+
+.float-left {
+    float: left;
+    margin: 0 15px 15px 0;
+}
+
+.float-right {
+    float: right;
+    margin: 0 0 15px 15px;
+}
+
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.reviews-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+    transition: max-height 0.3s ease-out;
+    overflow: hidden;
+}
+
+.review-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+.review-controls {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.review-item p{
+    margin-right: 45px;
+}
+
+.price-list {
+    margin: 15px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.card p{
+    text-align: justify;
+
+}
+
+@media (max-width: 800px) {
+    .float-left {
+        float: none;
+        margin: 0;
+    }
+    .float-right {
+        float: none;
+        margin: 0;
+    }
+    .img-float {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+input {
+    height: 100%;
+}
+
+.filter-controls {
+    margin: 20px 0;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.filter-controls select {
+    padding: 8px;
+    margin-left: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.filter-controls {
+    margin: 20px 0;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.filter-group label {
+    font-weight: 500;
+}
+
+.filter-group select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+}
+
+.no-results {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
