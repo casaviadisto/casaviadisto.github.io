@@ -12,7 +12,7 @@ async function initStorage() {
     }
 
     try {
-        const response = await fetch('/db.json');
+        const response = await fetch('./db.json');
         if (!response.ok) throw new Error('Помилка завантаження');
         const defaultData = await response.json();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
