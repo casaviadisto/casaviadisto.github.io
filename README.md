@@ -5,4 +5,4 @@
 
 [ЛР2](https://casaviadisto.github.io/lr2/)
 
-[ЛР3](https://casaviadisto.github.io/lr2/dist)
+[ЛР3](https://casaviadisto.github.io/lr3/dist)
