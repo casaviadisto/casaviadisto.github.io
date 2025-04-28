@@ -12,6 +12,9 @@
 
 img{
     box-shadow: 4px 4px 4px gray;
+    width: 600px;
+    height: 100%;
+
 }
 
 .text{
@@ -21,12 +24,6 @@ img{
 .things{
     display: flex;
 }
-
-.things img {
-    height: 500px;
-}
-
-
 
 .poem{
     display: flex;
