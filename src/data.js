@@ -12,7 +12,7 @@ export async function loadData() {
     }
 
     // якщо немає або зіпсоване — тягнемо з db.json
-    const response = await fetch('/db.json');
+    const response = await fetch('./db.json');
     if (!response.ok) {
         throw new Error('Помилка завантаження db.json');
     }
