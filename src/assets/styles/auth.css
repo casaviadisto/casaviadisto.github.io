@@ -34,3 +34,17 @@
     color: #dc3545;
     margin-bottom: 1rem;
 }
+
+.google-btn {
+    background: #dd4b39;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin: 10px 0;
+    cursor: pointer;
+    width: 100%;
+}
+
+.google-btn:hover {
+    background: #c23321;
+}

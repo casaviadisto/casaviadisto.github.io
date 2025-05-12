@@ -1,6 +1,9 @@
+import {useAuthState} from 'react-firebase-hooks/auth';
+import {auth} from '../firebase-config';
 import {useState, useEffect} from 'react';
 import {loadData} from "../data.js";
 import '../assets/styles/travels_places.css';
+import {Link} from "react-router-dom";
 
 const PlaceCard = ({place, placeTypes, index, onDelete, onToggle, isExpanded, onAddReview, onDeleteReview}) => {
     const [reviewText, setReviewText] = useState('');
@@ -80,6 +83,7 @@ const PlaceCard = ({place, placeTypes, index, onDelete, onToggle, isExpanded, on
 };
 
 export default function Places() {
+    const [user] = useAuthState(auth);
     const [db, setDb] = useState({travels: [], travel_places: [], place_types: []});
     const [formData, setFormData] = useState({
         place: '',
@@ -210,91 +214,98 @@ export default function Places() {
                     />
                 ))}
             </article>
-
-            <form id="place_form" className="card" onSubmit={handleSubmit}>
-                <h2>Додати місце</h2>
-                <div className="form-grid">
-                    <div className="form-group">
-                        <label htmlFor="place_place">Назва</label>
-                        <input
-                            type="text"
-                            className="form-input"
-                            id="place_place"
-                            name="place"
-                            value={formData.place}
-                            onChange={handleInputChange}
-                            required
-                        />
+            {user && (
+                <form id="place_form" className="card" onSubmit={handleSubmit}>
+                    <h2>Додати місце</h2>
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label htmlFor="place_place">Назва</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                id="place_place"
+                                name="place"
+                                value={formData.place}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="place_photo">Фото</label>
+                            <input
+                                type="url"
+                                className="form-input"
+                                id="place_photo"
+                                name="photo"
+                                value={formData.photo}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="flight_cost">Переліт (€)</label>
+                            <input
+                                type="number"
+                                className="form-input"
+                                id="flight_cost"
+                                name="flight_cost"
+                                value={formData.flight_cost}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="live_cost">Проживання (€/доба)</label>
+                            <input
+                                type="number"
+                                className="form-input"
+                                id="live_cost"
+                                name="live_cost"
+                                value={formData.live_cost}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="place_type">Тип місця</label>
+                            <select
+                                className="form-input"
+                                id="place_type"
+                                name="place_type"
+                                value={formData.place_type}
+                                onChange={handleInputChange}
+                                required
+                            >
+                                {db.place_types?.map(type => (
+                                    <option key={type.id} value={type.id}>
+                                        {type.name_ua}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="place_photo">Фото</label>
-                        <input
-                            type="url"
-                            className="form-input"
-                            id="place_photo"
-                            name="photo"
-                            value={formData.photo}
+                        <label htmlFor="place_description">Опис</label>
+                        <textarea
+                            className="form-textarea"
+                            id="place_description"
+                            name="description"
+                            value={formData.description}
                             onChange={handleInputChange}
                             required
-                        />
+                        ></textarea>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="flight_cost">Переліт (€)</label>
-                        <input
-                            type="number"
-                            className="form-input"
-                            id="flight_cost"
-                            name="flight_cost"
-                            value={formData.flight_cost}
-                            onChange={handleInputChange}
-                            required
-                        />
+                    <div className="form-submit">
+                        <button type="submit" className="btn btn-primary">Додати</button>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="live_cost">Проживання (€/доба)</label>
-                        <input
-                            type="number"
-                            className="form-input"
-                            id="live_cost"
-                            name="live_cost"
-                            value={formData.live_cost}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="place_type">Тип місця</label>
-                        <select
-                            className="form-input"
-                            id="place_type"
-                            name="place_type"
-                            value={formData.place_type}
-                            onChange={handleInputChange}
-                            required
-                        >
-                            {db.place_types?.map(type => (
-                                <option key={type.id} value={type.id}>
-                                    {type.name_ua}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                </form>
+            )}
+            {!user && (
+                <div className="card auth-notice">
+                    <p>Щоб додавати нові місця, будь ласка <Link to="/login">увійдіть</Link> або <Link
+                        to="/register">зареєструйтесь</Link>.</p>
                 </div>
-                <div className="form-group">
-                    <label htmlFor="place_description">Опис</label>
-                    <textarea
-                        className="form-textarea"
-                        id="place_description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleInputChange}
-                        required
-                    ></textarea>
-                </div>
-                <div className="form-submit">
-                    <button type="submit" className="btn btn-primary">Додати</button>
-                </div>
-            </form>
+            )}
         </>
     );
 }

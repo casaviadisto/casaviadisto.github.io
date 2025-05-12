@@ -29,12 +29,14 @@ header nav ul {
     justify-content: space-evenly;
     padding: 0;
     margin: 0;
+    height: 44px;
 }
 
 header nav ul li {
     padding: 0 5px;
     font-weight: bold;
     transition: all 0.1s;
+    margin: auto 0 auto 50px;
 }
 
 header nav ul li:hover {
@@ -178,4 +180,49 @@ footer a:hover {
         max-width: 100%;
         margin: 10px 0;
     }
+}
+
+.user-menu {
+    position: relative;
+    margin-left: auto;
+}
+
+.user-info {
+    cursor: pointer;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    color: #fff;
+    transition: background-color 0.3s;
+}
+
+.user-info:hover {
+    background-color: #555;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    min-width: 150px;
+}
+
+.dropdown-menu button {
+    width: 100%;
+    padding: 10px;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #333;
+}
+
+.dropdown-menu button:hover {
+    background-color: #f5f5f5;
 }

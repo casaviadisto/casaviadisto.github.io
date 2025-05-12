@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase-config';
+import {useState} from 'react';
+import {Link, useNavigate} from 'react-router-dom';
+import {signInWithEmailAndPassword} from 'firebase/auth';
+import {signInWithPopup} from 'firebase/auth';
+import {auth, googleProvider} from '../firebase-config';
 import '../assets/styles/auth.css';
 
 export default function Login() {
@@ -17,6 +18,15 @@ export default function Login() {
             navigate('/');
         } catch (err) {
             setError('Невірний email або пароль');
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        try {
+            await signInWithPopup(auth, googleProvider);
+            navigate('/');
+        } catch (err) {
+            setError('Помилка входу через Google');
         }
     };
 
@@ -39,6 +49,9 @@ export default function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
+                <button type="button" onClick={handleGoogleLogin} className="google-btn">
+                    Увійти через Google
+                </button>
                 <button type="submit">Увійти</button>
                 <p>
                     Немає акаунту? <Link to="/register">Створити</Link>

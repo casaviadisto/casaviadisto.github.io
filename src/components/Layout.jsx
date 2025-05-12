@@ -1,11 +1,25 @@
-import { Outlet, NavLink } from 'react-router-dom';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../firebase-config';
-import { signOut } from 'firebase/auth';
+import {useState, useEffect, useRef} from 'react';
+import {Outlet, NavLink} from 'react-router-dom';
+import {useAuthState} from 'react-firebase-hooks/auth';
+import {auth} from '../firebase-config';
+import {signOut} from 'firebase/auth';
 import '../assets/styles/base.css';
 
 export default function Layout() {
     const [user, loading] = useAuthState(auth);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     if (loading) return <div>Завантаження...</div>;
 
@@ -15,14 +29,14 @@ export default function Layout() {
                 <nav>
                     <ul className="nav-list">
                         <li>
-                            <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>
+                            <NavLink to="/" end className={({isActive}) => isActive ? 'active' : ''}>
                                 Головна
                             </NavLink>
                         </li>
 
                         {/* Посилання на місця - завжди видиме */}
                         <li>
-                            <NavLink to="/places" className={({ isActive }) => isActive ? 'active' : ''}>
+                            <NavLink to="/places" className={({isActive}) => isActive ? 'active' : ''}>
                                 Місця для відвідування
                             </NavLink>
                         </li>
@@ -31,36 +45,55 @@ export default function Layout() {
                         {user && (
                             <>
                                 <li>
-                                    <NavLink to="/travels" className={({ isActive }) => isActive ? 'active' : ''}>
+                                    <NavLink to="/travels" className={({isActive}) => isActive ? 'active' : ''}>
                                         Мої подорожі
                                     </NavLink>
                                 </li>
                                 <li>
-                                    <NavLink to="/budget" className={({ isActive }) => isActive ? 'active' : ''}>
+                                    <NavLink to="/budget" className={({isActive}) => isActive ? 'active' : ''}>
                                         Бюджет
                                     </NavLink>
                                 </li>
                             </>
                         )}
 
-                        <li>
+                        {/*<li>*/}
+                        {/*    {user ? (*/}
+                        {/*        <button onClick={() => signOut(auth)}>Вийти</button>*/}
+                        {/*    ) : (*/}
+                        {/*        <NavLink to="/login">Увійти</NavLink>*/}
+                        {/*    )}*/}
+                        {/*</li>*/}
+                        <li className="user-menu" ref={menuRef}>
                             {user ? (
-                                <button onClick={() => signOut(auth)}>Вийти</button>
+                                <div className="user-info" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                                    <span>{user.displayName || user.email}</span>
+                                    {isMenuOpen && (
+                                        <div className="dropdown-menu">
+                                            <NavLink to="/">
+                                                <button onClick={() => signOut(auth)}>Вийти</button>
+                                            </NavLink>
+                                            <NavLink to="/login">
+                                                <button onClick={() => signOut(auth)}>Змінити аккаунт</button>
+                                            </NavLink>
+                                        </div>
+                                    )}
+                                </div>
                             ) : (
                                 <NavLink to="/login">Увійти</NavLink>
                             )}
                         </li>
                     </ul>
                 </nav>
-                <hr />
+                <hr/>
             </header>
 
             <main className="app-main">
-                <Outlet />
+                <Outlet/>
             </main>
 
             <footer className="app-footer">
-                <hr />
+                <hr/>
                 <div className="footer-content">
                     <h5>Виконав студент групи ОІ-24 Антон.</h5>
                     <h5>
@@ -69,7 +102,8 @@ export default function Layout() {
                         </a>
                     </h5>
                     <h5>
-                        <a href="https://github.com/casaviadisto/casaviadisto.github.io/tree/main" target="_blank" rel="noopener">
+                        <a href="https://github.com/casaviadisto/casaviadisto.github.io/tree/main" target="_blank"
+                           rel="noopener">
                             GitHub
                         </a>
                     </h5>
