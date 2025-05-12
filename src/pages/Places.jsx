@@ -1,9 +1,9 @@
 import {useAuthState} from 'react-firebase-hooks/auth';
 import {auth} from '../firebase-config';
 import {useState, useEffect} from 'react';
-import {loadData} from "../data.js";
+import {loadData, addPlace, deletePlace, updatePlaceReviews} from '../data';
+import {Link} from 'react-router-dom';
 import '../assets/styles/travels_places.css';
-import {Link} from "react-router-dom";
 
 const PlaceCard = ({place, placeTypes, index, onDelete, onToggle, isExpanded, onAddReview, onDeleteReview}) => {
     const [reviewText, setReviewText] = useState('');
@@ -14,63 +14,48 @@ const PlaceCard = ({place, placeTypes, index, onDelete, onToggle, isExpanded, on
             <div className="card-header">
                 <h4>{place.title}</h4>
                 <div>
-                    <button
-                        className="btn btn-toggle"
-                        onClick={() => onToggle(index)}
-                    >
+                    <button className="btn btn-toggle" onClick={() => onToggle(index)}>
                         {isExpanded ? 'Сховати відгуки' : 'Показати відгуки'}
                     </button>
-                    <button
-                        className="btn btn-danger"
-                        onClick={() => onDelete(index)}
-                    >
+                    <button className="btn btn-danger" onClick={() => onDelete(place.id)}>
                         Видалити
                     </button>
                 </div>
             </div>
-            <img
-                src={place.img}
-                alt={place.title}
-                className={`img-float ${index % 2 ? 'float-right' : 'float-left'}`}
-            />
+            <img src={place.img} alt={place.title} className={`img-float ${index % 2 ? 'float-right' : 'float-left'}`}/>
             <p>{place.text}</p>
             <div className="price-list">
                 <p><strong>Ціни:</strong></p>
-                <p>Переліт: {place.prices.flight}€</p>
-                <p>Проживання: {place.prices.live}€/доба</p>
+                <p>Переліт: {place.prices.flight || 'Н/Д'}€</p>
+                <p>Проживання: {place.prices.live || 'Н/Д'}€/доба</p>
                 <p>Тип: {placeType.name_ua}</p>
             </div>
             <div className="clearfix"></div>
 
-            <div
-                className="reviews-container"
-                style={{display: isExpanded ? 'block' : 'none'}}
-            >
+            <div className="reviews-container" style={{display: isExpanded ? 'block' : 'none'}}>
                 <h5>Відгуки:</h5>
                 <div className="reviews-list">
                     {place.reviews?.map((review, reviewIndex) => (
                         <div key={reviewIndex} className="review-item">
                             <p>{review}</p>
-                            <button
-                                className="btn btn-danger review-controls"
-                                onClick={() => onDeleteReview(index, reviewIndex)}
-                            >
+                            <button className="btn btn-danger review-controls"
+                                    onClick={() => onDeleteReview(place.id, reviewIndex)}>
                                 ×
                             </button>
                         </div>
                     ))}
                 </div>
                 <div className="new-review">
-                    <textarea
-                        className="form-textarea new-review-text"
-                        placeholder="Напишіть відгук"
-                        value={reviewText}
-                        onChange={(e) => setReviewText(e.target.value)}
-                    ></textarea>
+          <textarea
+              className="form-textarea new-review-text"
+              placeholder="Напишіть відгук"
+              value={reviewText}
+              onChange={e => setReviewText(e.target.value)}
+          ></textarea>
                     <button
                         className="btn btn-primary add-review-btn"
                         onClick={() => {
-                            onAddReview(index, reviewText);
+                            onAddReview(place.id, reviewText);
                             setReviewText('');
                         }}
                     >
@@ -84,7 +69,7 @@ const PlaceCard = ({place, placeTypes, index, onDelete, onToggle, isExpanded, on
 
 export default function Places() {
     const [user] = useAuthState(auth);
-    const [db, setDb] = useState({travels: [], travel_places: [], place_types: []});
+    const [dbState, setDb] = useState({travel_places: [], place_types: []});
     const [formData, setFormData] = useState({
         place: '',
         photo: '',
@@ -97,16 +82,21 @@ export default function Places() {
     const [selectedType, setSelectedType] = useState('всі');
 
     // Фільтровані місця
-    const filteredPlaces = db.travel_places?.filter(place =>
+    const filteredPlaces = dbState.travel_places.filter(place =>
         selectedType === 'всі' || place.place_type === parseInt(selectedType)
-    ) || [];
+    );
 
-    // Ініціалізація даних
+    // Ініціалізація даних з Firebase
     useEffect(() => {
+
         const initialize = async () => {
             try {
                 const data = await loadData();
-                setDb(data);
+                // Видаліть ручну конвертацію, оскільки loadData тепер повертає правильні id
+                setDb({
+                    travel_places: data.travel_places.filter(place => place.title), // Фільтруємо невалідні записи
+                    place_types: data.place_types
+                });
             } catch (error) {
                 console.error('Помилка ініціалізації:', error);
             }
@@ -114,44 +104,87 @@ export default function Places() {
         initialize();
     }, []);
 
-    const handleSubmit = (e) => {
+    // Додавання нового місця
+    const handleSubmit = async e => {
         e.preventDefault();
-
         const newPlace = {
             title: formData.place,
             img: formData.photo,
             text: formData.description,
             place_type: parseInt(formData.place_type),
-            prices: {
-                flight: Number(formData.flight_cost),
-                live: Number(formData.live_cost)
+            prices: { // Додано явну ініціалізацію prices
+                flight: Number(formData.flight_cost) || 0,
+                live: Number(formData.live_cost) || 0
             },
             reviews: []
         };
-
-        const updatedDb = {
-            ...db,
-            travel_places: [...db.travel_places, newPlace]
-        };
-
-        setDb(updatedDb);
-        localStorage.setItem('travelData', JSON.stringify(updatedDb));
-        setFormData({
-            place: '',
-            photo: '',
-            flight_cost: '',
-            live_cost: '',
-            description: '',
-            place_type: 0
-        });
+        try {
+            const newPlaceId = await addPlace(newPlace);
+            setDb(prev => ({
+                ...prev,
+                travel_places: [...prev.travel_places, {id: newPlaceId, ...newPlace}]
+            }));
+            setFormData({place: '', photo: '', flight_cost: '', live_cost: '', description: '', place_type: 0});
+        } catch (error) {
+            console.error('Помилка додавання місця:', error);
+        }
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = e => {
         const {name, value} = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        setFormData(prev => ({...prev, [name]: value}));
+    };
+
+    // Видалення місця
+    const handleDeletePlace = async id => {
+        if (!window.confirm('Видалити місце?')) return;
+        try {
+            await deletePlace(id);
+            setDb(prev => ({
+                ...prev,
+                travel_places: prev.travel_places.filter(p => p.id !== id)
+            }));
+        } catch (error) {
+            console.error('Помилка видалення:', error);
+        }
+    };
+
+    // Додавання відгуку
+    const handleAddReview = async (id, text) => {
+        try {
+            const place = dbState.travel_places.find(p => p.id === id);
+            if (!place) {
+                console.error("Місце не знайдено");
+                return;
+            }
+            const updatedReviews = [...(place.reviews || []), text];
+            await updatePlaceReviews(id, updatedReviews);
+            setDb(prev => ({
+                ...prev,
+                travel_places: prev.travel_places.map(p =>
+                    p.id === id ? { ...p, reviews: updatedReviews } : p
+                )
+            }));
+        } catch (error) {
+            console.error('Помилка додавання відгуку:', error);
+        }
+    };
+
+    // Видалення відгуку
+    const handleDeleteReview = async (id, reviewIndex) => {
+        try {
+            const place = dbState.travel_places.find(p => p.id === id);
+            const updatedReviews = place.reviews.filter((_, i) => i !== reviewIndex);
+            await updatePlaceReviews(id, updatedReviews);
+            setDb(prev => ({
+                ...prev,
+                travel_places: prev.travel_places.map(p =>
+                    p.id === id ? {...p, reviews: updatedReviews} : p
+                )
+            }));
+        } catch (error) {
+            console.error('Помилка видалення відгуку:', error);
+        }
     };
 
     return (
@@ -161,15 +194,10 @@ export default function Places() {
             <div className="filter-controls">
                 <div className="filter-group">
                     <label>Фільтр за типом: </label>
-                    <select
-                        value={selectedType}
-                        onChange={(e) => setSelectedType(e.target.value)}
-                    >
+                    <select value={selectedType} onChange={e => setSelectedType(e.target.value)}>
                         <option value="всі">Всі типи</option>
-                        {db.place_types?.map(type => (
-                            <option key={type.id} value={type.id}>
-                                {type.name_ua}
-                            </option>
+                        {dbState.place_types.map(type => (
+                            <option key={type.id} value={type.id}>{type.name_ua}</option>
                         ))}
                     </select>
                 </div>
@@ -178,43 +206,20 @@ export default function Places() {
             <article id="places">
                 {filteredPlaces.map((place, index) => (
                     <PlaceCard
-                        key={index}
+                        key={place.id}
                         place={place}
-                        placeTypes={db.place_types}
+                        placeTypes={dbState.place_types}
                         index={index}
                         isExpanded={expandedPlace === index}
-                        onToggle={(currentIndex) => {
-                            setExpandedPlace(prev =>
-                                prev === currentIndex ? null : currentIndex
-                            );
-                        }}
-                        onDelete={(index) => {
-                            if (window.confirm('Видалити місце?')) {
-                                const updatedPlaces = [...db.travel_places];
-                                updatedPlaces.splice(index, 1);
-                                const updatedDb = {...db, travel_places: updatedPlaces};
-                                setDb(updatedDb);
-                                localStorage.setItem('travelData', JSON.stringify(updatedDb));
-                            }
-                        }}
-                        onAddReview={(index, text) => {
-                            const updatedPlaces = [...db.travel_places];
-                            updatedPlaces[index].reviews.push(text);
-                            const updatedDb = {...db, travel_places: updatedPlaces};
-                            setDb(updatedDb);
-                            localStorage.setItem('travelData', JSON.stringify(updatedDb));
-                        }}
-                        onDeleteReview={(placeIndex, reviewIndex) => {
-                            const updatedPlaces = [...db.travel_places];
-                            updatedPlaces[placeIndex].reviews.splice(reviewIndex, 1);
-                            const updatedDb = {...db, travel_places: updatedPlaces};
-                            setDb(updatedDb);
-                            localStorage.setItem('travelData', JSON.stringify(updatedDb));
-                        }}
+                        onToggle={i => setExpandedPlace(prev => (prev === i ? null : i))}
+                        onDelete={handleDeletePlace}
+                        onAddReview={handleAddReview}
+                        onDeleteReview={handleDeleteReview}
                     />
                 ))}
             </article>
-            {user && (
+
+            {user ? (
                 <form id="place_form" className="card" onSubmit={handleSubmit}>
                     <h2>Додати місце</h2>
                     <div className="form-grid">
@@ -276,10 +281,8 @@ export default function Places() {
                                 onChange={handleInputChange}
                                 required
                             >
-                                {db.place_types?.map(type => (
-                                    <option key={type.id} value={type.id}>
-                                        {type.name_ua}
-                                    </option>
+                                {dbState.place_types.map(type => (
+                                    <option key={type.id} value={type.id}>{type.name_ua}</option>
                                 ))}
                             </select>
                         </div>
@@ -299,8 +302,7 @@ export default function Places() {
                         <button type="submit" className="btn btn-primary">Додати</button>
                     </div>
                 </form>
-            )}
-            {!user && (
+            ) : (
                 <div className="card auth-notice">
                     <p>Щоб додавати нові місця, будь ласка <Link to="/login">увійдіть</Link> або <Link
                         to="/register">зареєструйтесь</Link>.</p>

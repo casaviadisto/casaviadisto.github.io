@@ -1,9 +1,15 @@
+// Travels.jsx
 import { useState, useEffect } from 'react';
-import { loadData } from "../data.js";
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth, db } from '../firebase-config';
+import { loadData, getUserTravels, addUserTravel, deleteUserTravel } from '../data';
+import { ref, onValue } from "firebase/database";
 import '../assets/styles/travels_places.css';
 
 export default function Travels() {
-    const [db, setDb] = useState({ travels: [], travel_places: [], place_types: [] });
+    const [user] = useAuthState(auth);
+    const [travels, setTravels] = useState([]);
+    const [dbData, setDbData] = useState({ travel_places: [], place_types: [] });
     const [formData, setFormData] = useState({
         place: '',
         dateStart: '',
@@ -16,82 +22,73 @@ export default function Travels() {
         placeType: 'all'
     });
 
-    // Initialize data
+    // Завантаження спільних даних
     useEffect(() => {
-        const initialize = async () => {
-            try {
-                const data = await loadData();
-                setDb(data);
-            } catch (error) {
-                console.error('Помилка ініціалізації:', error);
-            }
-        };
-        initialize();
+        loadData().then(data => setDbData(data));
     }, []);
 
-    // Format date helper function
-    const formatDate = (isoString) => {
-        const date = new Date(isoString);
-        return date.toLocaleDateString('uk-UA');
-    };
+    // Синхронізація подорожей з Firebase
+    useEffect(() => {
+        if (user) {
+            const travelsRef = ref(db, `users/${user.uid}/travels`);
+            const unsubscribe = onValue(travelsRef, (snapshot) => {
+                const data = snapshot.val();
+                setTravels(data ? Object.entries(data).map(([id, travel]) => ({ id, ...travel })) : []);
+            });
+            return () => unsubscribe();
+        }
+    }, [user]);
 
-    // Handle input changes
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Handle filter changes
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters(prev => ({ ...prev, [name]: value }));
     };
 
-    // Handle form submission
-    const handleSubmit = (e) => {
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('uk-UA');
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!user) return;
 
         const newTravel = {
+            completed: formData.type === 'completed',
             city: formData.place,
             dateStart: formatDate(formData.dateStart),
             dateEnd: formatDate(formData.dateEnd),
-            completed: formData.type === 'completed',
-            img: db.travel_places?.find(p => p.title === formData.place)?.img || '',
+            img: dbData.travel_places.find(p => p.title === formData.place)?.img || '',
             text: formData.description
         };
 
-        const updatedDb = { ...db, travels: [...db.travels, newTravel] };
-        setDb(updatedDb);
-        localStorage.setItem('travelData', JSON.stringify(updatedDb));
-        setFormData({
-            place: '',
-            dateStart: '',
-            dateEnd: '',
-            type: 'completed',
-            description: ''
-        });
-    };
+        try {
+            await addUserTravel(user.uid, newTravel); // Виправлений виклик
 
-    // Delete travel
-    const deleteTravel = (index) => {
-        if (window.confirm('Видалити подорож?')) {
-            const updatedTravels = [...db.travels];
-            updatedTravels.splice(index, 1);
-            const updatedDb = { ...db, travels: updatedTravels };
-            setDb(updatedDb);
-            localStorage.setItem('travelData', JSON.stringify(updatedDb));
+            setFormData({
+                place: '',
+                dateStart: '',
+                dateEnd: '',
+                type: 'completed',
+                description: ''
+            });
+        } catch (error) {
+            console.error("Помилка додавання подорожі:", error);
         }
     };
 
-    // Filter and group travels
-    const filteredTravels = db.travels.filter(travel => {
-        // Status filter
+    // Фільтрація та групування подорожей
+    const filteredTravels = travels.filter(travel => {
         const statusMatch = filters.status === 'all' ||
             (filters.status === 'completed' && travel.completed) ||
             (filters.status === 'planned' && !travel.completed);
 
-        // Place type filter
-        const place = db.travel_places.find(p => p.title === travel.city);
+        const place = dbData.travel_places.find(p => p.title === travel.city);
         const typeMatch = filters.placeType === 'all' ||
             (place && place.place_type === parseInt(filters.placeType));
 
@@ -133,7 +130,7 @@ export default function Travels() {
                         onChange={handleFilterChange}
                     >
                         <option value="all">Всі типи</option>
-                        {db.place_types?.map(type => (
+                        {dbData.place_types?.map(type => (
                             <option key={type.id} value={type.id}>
                                 {type.name_ua}
                             </option>
@@ -153,7 +150,7 @@ export default function Travels() {
                                         <h4>{travel.city}</h4>
                                         <button
                                             className="btn btn-danger"
-                                            onClick={() => deleteTravel(db.travels.indexOf(travel))}
+                                            onClick={() => deleteUserTravel(user.uid, travel.id)} // Використовуємо ID подорожі
                                         >
                                             Видалити
                                         </button>
@@ -185,7 +182,7 @@ export default function Travels() {
                                         <h4>{travel.city}</h4>
                                         <button
                                             className="btn btn-danger"
-                                            onClick={() => deleteTravel(db.travels.indexOf(travel))}
+                                            onClick={() => deleteUserTravel(user.uid, travel.id)} // Використовуємо ID подорожі
                                         >
                                             Видалити
                                         </button>
@@ -222,9 +219,9 @@ export default function Travels() {
                             required
                         >
                             <option value="">Оберіть місце</option>
-                            {db.travel_places?.map((place, index) => (
+                            {dbData.travel_places?.map((place, index) => ( // Змінено db.travel_places на dbData.travel_places
                                 <option key={index} value={place.title}>
-                                    {place.title} ({db.place_types.find(t => t.id === place.place_type)?.name_ua})
+                                    {place.title} ({dbData.place_types.find(t => t.id === place.place_type)?.name_ua})
                                 </option>
                             ))}
                         </select>
