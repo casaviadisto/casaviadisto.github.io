@@ -6,3 +6,7 @@
 [ЛР2](https://casaviadisto.github.io/lr2/)
 
 [ЛР3](https://casaviadisto.github.io/lr3/)
+
+[ЛР4](https://casaviadisto.github.io/lr4/)
+
+[ЛР5](https://casaviadisto.github.io/lr5/)
