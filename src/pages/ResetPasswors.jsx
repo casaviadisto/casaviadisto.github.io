@@ -1,8 +1,7 @@
-// ResetPassword.jsx
+// src/pages/ResetPasswors.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../firebase-config';
+import axios from 'axios';
 import '../assets/styles/auth.css';
 
 export default function ResetPassword() {
@@ -10,28 +9,18 @@ export default function ResetPassword() {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const API_URL = import.meta.env.VITE_API_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await sendPasswordResetEmail(auth, email);
+            await axios.post(`${API_URL}/auth/reset-password`, { email });
             setMessage('Лист для скидання пароля відправлено на вашу пошту');
             setError('');
             setTimeout(() => navigate('/login'), 3000);
         } catch (err) {
-            setError(getErrorMessage(err.code));
+            setError('Помилка при відправці листа');
             setMessage('');
-        }
-    };
-
-    const getErrorMessage = (code) => {
-        switch (code) {
-            case 'auth/invalid-email':
-                return 'Невірний формат email';
-            case 'auth/user-not-found':
-                return 'Користувача з таким email не знайдено';
-            default:
-                return 'Помилка при відправці листа';
         }
     };
 

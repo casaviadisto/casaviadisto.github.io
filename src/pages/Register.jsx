@@ -1,51 +1,30 @@
+// src/pages/Register.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { ref, set } from 'firebase/database';
+import axios from 'axios';
+import { signInWithCustomToken } from 'firebase/auth';
+import { auth } from '../firebase-config';
 import '../assets/styles/auth.css';
-import { auth, googleProvider, db } from '../firebase-config';
 
 export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-
-    // Function to write user profile to Realtime Database
-    const writeUserProfile = async (uid, email, displayName = null) => {
-        const profileRef = ref(db, `users/${uid}/profile`);
-        const profileData = {
-            email,
-            displayName,
-            createdAt: Date.now(),
-        };
-        await set(profileRef, profileData);
-    };
+    const API_URL = import.meta.env.VITE_API_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            // Save profile in Realtime Database
-            await writeUserProfile(user.uid, user.email, user.displayName);
+            // Call backend to create user and get custom token
+            const res = await axios.post(`${API_URL}/auth/register`, { email, password });
+            const token = res.data.token;
+            // Sign in with custom token
+            await signInWithCustomToken(auth, token);
             navigate('/');
         } catch (err) {
-            setError('Помилка реєстрації: ' + err.message);
-        }
-    };
-
-    const handleGoogleRegister = async () => {
-        setError('');
-        try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
-            // Save or update profile in Realtime Database
-            await writeUserProfile(user.uid, user.email, user.displayName);
-            navigate('/');
-        } catch (err) {
-            setError('Помилка реєстрації через Google: ' + err.message);
+            setError('Помилка реєстрації: ' + err.response?.data?.error || err.message);
         }
     };
 
@@ -69,9 +48,6 @@ export default function Register() {
                     required
                 />
                 <button type="submit">Зареєструватися</button>
-                <button type="button" onClick={handleGoogleRegister} className="google-btn">
-                    Зареєструватися через Google
-                </button>
                 <p>
                     Вже є акаунт? <Link to="/login">Увійти</Link>
                 </p>

@@ -1,8 +1,7 @@
-// NewPassword.jsx
+// src/pages/NewPassword.jsx
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { confirmPasswordReset } from 'firebase/auth';
-import { auth } from '../firebase-config';
+import axios from 'axios';
 import '../assets/styles/auth.css';
 
 export default function NewPassword() {
@@ -11,29 +10,19 @@ export default function NewPassword() {
     const [message, setMessage] = useState('');
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const oobCode = searchParams.get('oobCode');
+    const oobCode = searchParams.get('oobCode');  // from email link
+    const API_URL = import.meta.env.VITE_API_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await confirmPasswordReset(auth, oobCode, newPassword);
+            await axios.post(`${API_URL}/auth/confirm-reset`, { oobCode, newPassword });
             setMessage('Пароль успішно змінено!');
-            setTimeout(() => navigate('/login'), 2000);
+            setError('');
+            setTimeout(() => navigate('/login'), 3000);
         } catch (err) {
-            setError(getErrorMessage(err.code));
-        }
-    };
-
-    const getErrorMessage = (code) => {
-        switch (code) {
-            case 'auth/expired-action-code':
-                return 'Посилання застаріло';
-            case 'auth/invalid-action-code':
-                return 'Невірний код підтвердження';
-            case 'auth/weak-password':
-                return 'Пароль має бути не менше 6 символів';
-            default:
-                return 'Помилка при зміні пароля';
+            setError('Помилка при зміні пароля');
+            setMessage('');
         }
     };
 
