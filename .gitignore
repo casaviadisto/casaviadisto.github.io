@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 
 src/firebase-config.js
+backend/serviceAccountKey.json
