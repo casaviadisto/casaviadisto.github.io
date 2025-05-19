@@ -1,8 +1,7 @@
-import {useState} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
-import {signInWithEmailAndPassword} from 'firebase/auth';
-import {signInWithPopup} from 'firebase/auth';
-import {auth, googleProvider} from '../firebase-config';
+// Login.jsx
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../assets/styles/auth.css';
 
 export default function Login() {
@@ -14,22 +13,13 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const { data } = await axios.post('/api/auth/login', { email, password });
+            localStorage.setItem('token', data.token);
             navigate('/');
         } catch (err) {
             setError('Невірний email або пароль');
         }
     };
-
-    const handleGoogleLogin = async () => {
-        try {
-            await signInWithPopup(auth, googleProvider);
-            navigate('/');
-        } catch (err) {
-            setError('Помилка входу через Google');
-        }
-    };
-
     return (
         <div className="auth-page">
             <form onSubmit={handleSubmit} className="auth-form">
@@ -55,6 +45,9 @@ export default function Login() {
                 <button type="submit">Увійти</button>
                 <p>
                     Немає акаунту? <Link to="/register">Створити</Link>
+                </p>
+                <p>
+                    <Link to="/reset-password">Забули пароль?</Link>
                 </p>
             </form>
         </div>

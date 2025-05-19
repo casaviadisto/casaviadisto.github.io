@@ -48,3 +48,9 @@
 .google-btn:hover {
     background: #c23321;
 }
+
+.auth-form h1 {
+    font-size: 24px;
+    margin: 0 0 20px 0;
+    text-align: center;
+}

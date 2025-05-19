@@ -7,6 +7,8 @@ import Budget from './pages/Budget';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PrivateRoute from './components/PrivateRoute';
+import ResetPassword from "./pages/ResetPasswors.jsx";
+import NewPassword from "./pages/NewPassword.jsx";
 
 export default function App() {
     return (
@@ -17,6 +19,8 @@ export default function App() {
                     <Route index element={<Home />} />
                     <Route path="login" element={<Login />} />
                     <Route path="register" element={<Register />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/new-password" element={<NewPassword />} />
                     <Route path="places" element={<Places />} />
                 </Route>
 
