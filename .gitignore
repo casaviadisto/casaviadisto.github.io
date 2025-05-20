@@ -24,13 +24,8 @@ dist-ssr
 *.sw?
 
 src/firebase-config.js
-backend/serviceAccountKey.json
+functions/serviceAccountKey.json
 
-public
-public/images
-src/assets
-src/components
-backend/node_modules
-backend/package-lock.json
-package-lock.json
+functions/node_modules
+
 
