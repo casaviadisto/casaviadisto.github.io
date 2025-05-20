@@ -7,7 +7,7 @@ import Budget from './pages/Budget';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PrivateRoute from './components/PrivateRoute';
-import ResetPassword from "./pages/ResetPasswors.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 import NewPassword from "./pages/NewPassword.jsx";
 
 export default function App() {

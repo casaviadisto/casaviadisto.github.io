@@ -12,7 +12,7 @@
   "dependencies": {
     "@react-firebase/auth": "^0.2.10",
     "axios": "^1.9.0",
-    "firebase": "^11.7.1",
+    "firebase": "^11.7.3",
     "firebase-admin": "^13.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

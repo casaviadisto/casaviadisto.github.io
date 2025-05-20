@@ -31,4 +31,6 @@ public/images
 src/assets
 src/components
 backend/node_modules
+backend/package-lock.json
+package-lock.json
 
